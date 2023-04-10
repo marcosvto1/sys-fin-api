@@ -1,0 +1,14 @@
+POST http://localhost:8000/api/v1/users
+Content-Type: "application/json"
+
+{
+    "name": "John",
+    "email": "marcosvto1@gmail.com",
+    "password": "123456",
+    "confirm_password": "123456",
+    "role": "admin"
+}
+
+### 
+
+GET http://localhost:8000/api/v1/users?page_number=2&page_size=1
