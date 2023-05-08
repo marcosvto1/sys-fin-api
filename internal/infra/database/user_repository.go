@@ -18,7 +18,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (r *UserRepository) Create(user *entity.User) error {
-	err := r.DB.QueryRow("INSERT INTO users (name, email, password, role) VALUES($1, $2, $3, $4) RETURNING id", user.Name, user.Email, user.Password, user.Role).Scan(&user.ID)
+	err := r.DB.QueryRow("INSERT INTO users (name, email, password) VALUES($1, $2, $3) RETURNING id", user.Name, user.Email, user.Password).Scan(&user.ID)
 	if err != nil {
 		return err
 	}
@@ -26,9 +26,8 @@ func (r *UserRepository) Create(user *entity.User) error {
 }
 
 func (r *UserRepository) FindById(id int) (entity.User, error) {
-	fmt.Println(id)
 	var user entity.User
-	err := r.DB.QueryRow("SELECT id, name, email, role FROM users WHERE id = $1", id).Scan(&user.ID, &user.Name, &user.Email, &user.Role)
+	err := r.DB.QueryRow("SELECT id, name, email FROM users WHERE id = $1", id).Scan(&user.ID, &user.Name, &user.Email)
 	if err != nil {
 		return user, err
 	}
@@ -40,7 +39,7 @@ func (r *UserRepository) Find(offset, pageSize, id int) ([]entity.User, int, err
 	fmt.Printf("buscando %v %v\n", offset, pageSize)
 	count := 0
 
-	rows, err := r.DB.Query("SELECT id, name, email, role FROM users OFFSET $1 LIMIT $2", offset, pageSize)
+	rows, err := r.DB.Query("SELECT id, name, email FROM users OFFSET $1 LIMIT $2", offset, pageSize)
 	if err != nil {
 		fmt.Println(err)
 		return nil, count, err
@@ -56,7 +55,7 @@ func (r *UserRepository) Find(offset, pageSize, id int) ([]entity.User, int, err
 	var users []entity.User
 	for rows.Next() {
 		var user = entity.User{}
-		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Role)
+		err = rows.Scan(&user.ID, &user.Name, &user.Email)
 		if err != nil {
 			return nil, count, err
 		}
@@ -69,7 +68,7 @@ func (r *UserRepository) Find(offset, pageSize, id int) ([]entity.User, int, err
 func (r *UserRepository) FindByEmail(email string) (entity.User, error) {
 	var user = entity.User{}
 
-	err := r.DB.QueryRow("SELECT id, name, email, role, password FROM users WHERE email = $1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.Password)
+	err := r.DB.QueryRow("SELECT id, name, email, password FROM users WHERE email = $1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 
 	if err != nil {
 		return entity.User{}, err

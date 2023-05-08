@@ -11,14 +11,17 @@ type IUserRepository interface {
 
 type IWalletRepository interface {
 	Create(wallet *entity.Wallet) error
+	FindAll() ([]entity.Wallet, error)
 }
 
 type ICategoryRepository interface {
 	Create(category *entity.Category) error
-	// Find(offset, pageNumber, id int) ([]entity.Category, int, error)
+	FindAll() ([]entity.Category, error)
 }
 
 type ITransactionRepository interface {
 	Create(transaction *entity.Transaction) error
-	Find(offset, pageNumber, id int) ([]entity.Transaction, int, error)
+	Find(offset, pageNumber int, filter FindTransactionOptions) ([]entity.Transaction, int, error)
+	DeleteById(id int) error
+	FindById(id int) (entity.Transaction, error)
 }

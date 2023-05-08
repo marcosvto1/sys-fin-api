@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -14,20 +15,37 @@ import (
 
 type CategoryController struct {
 	CreateCategoryUseCase usecase.ICreateCategory
+	FindCategoriesUseCase usecase.IFindCategories
 }
 
-func NewCategoryController(createCategoryUC usecase.ICreateCategory) *CategoryController {
+func NewCategoryController(createCategoryUC usecase.ICreateCategory, findCategoryUC usecase.IFindCategories) *CategoryController {
 	return &CategoryController{
 		CreateCategoryUseCase: createCategoryUC,
+		FindCategoriesUseCase: findCategoryUC,
 	}
 }
 
-func (this *CategoryController) CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
+func (controller *CategoryController) FindCategoriesHandler(w http.ResponseWriter, r *http.Request) {
+	output, err := controller.FindCategoriesUseCase.Execute()
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusBadGateway)
+		render.JSON(w, r, errorable.HttpResponse(http.StatusBadGateway, []error{err}))
+		return
+	}
+
+	fmt.Println(output)
+	w.Header().Set("Content-Type", "application/json")
+	render.JSON(w, r, output)
+}
+
+func (controller *CategoryController) CreateCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
 		render.JSON(w, r, errorable.HttpResponse(http.StatusBadRequest, []error{err}))
+		return
 	}
 
 	defer r.Body.Close()
@@ -40,7 +58,7 @@ func (this *CategoryController) CreateCategoryHandler(w http.ResponseWriter, r *
 		render.JSON(w, r, errorable.HttpResponse(http.StatusBadRequest, []error{err}))
 	}
 
-	output, err := this.CreateCategoryUseCase.Execute(input)
+	output, err := controller.CreateCategoryUseCase.Execute(input)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
