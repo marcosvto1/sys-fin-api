@@ -23,3 +23,22 @@ func (r *WalletRepository) Create(wallet *entity.Wallet) error {
 	}
 	return nil
 }
+
+func (r *WalletRepository) FindAll() ([]entity.Wallet, error) {
+	rows, err := r.DB.Query("SELECT id, name, amount FROM wallets")
+	if err != nil {
+		return nil, err
+	}
+
+	var wallets []entity.Wallet
+	for rows.Next() {
+		wallet := entity.Wallet{}
+		err = rows.Scan(&wallet.ID, &wallet.Name, &wallet.Amount)
+		if err != nil {
+			return nil, err
+		}
+		wallets = append(wallets, wallet)
+	}
+
+	return wallets, nil
+}

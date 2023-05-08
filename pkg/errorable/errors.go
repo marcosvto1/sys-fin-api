@@ -1,12 +1,14 @@
 package errorable
 
 const (
-	NOT_FOUND_REGISTER      = "not_found_register"
-	INTERNAL_ERROR          = "internal_error"
-	INVALID_PASSWORD        = "invalid_password"
-	INVALID_VALUE_FIELD     = "invalid_value_field"
-	INVALID_BODY_REQUEST    = "invalid_body_request"
-	FAILED_TO_CREATE_WALLET = "failed_to_create_wallet"
+	NOT_FOUND_REGISTER           = "not_found_register"
+	INTERNAL_ERROR               = "internal_error"
+	INVALID_PASSWORD             = "invalid_password"
+	INVALID_VALUE_FIELD          = "invalid_value_field"
+	INVALID_BODY_REQUEST         = "invalid_body_request"
+	FAILED_TO_CREATE_WALLET      = "failed_to_create_wallet"
+	FAILED_TO_CREATE_TRANSACTION = "failed_to_create_transaction"
+	FAILED_TO_CREATE_CATEGORY    = "failed_to_create_category"
 )
 
 type CtxError struct {
@@ -64,6 +66,12 @@ func getMessageErrorFromContext(context string) string {
 		return "Invalid value field"
 	case INVALID_BODY_REQUEST:
 		return "invalid body request"
+	case FAILED_TO_CREATE_TRANSACTION:
+		return "Failed to create transaction"
+	case FAILED_TO_CREATE_CATEGORY:
+		return "Failed to create category"
+	case FAILED_TO_CREATE_WALLET:
+		return "Failed to create wallet"
 	default:
 		return "Not mapped error"
 	}

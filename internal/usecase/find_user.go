@@ -15,12 +15,12 @@ func NewFindUserUseCase(userRepository database.IUserRepository) *FindUserUseCas
 	}
 }
 
-func (f *FindUserUseCase) Execute(input dtos.FindInput) (dtos.FindOutput, error) {
+func (f *FindUserUseCase) Execute(input dtos.FindInput) (dtos.FindOutput[dtos.UserOutput], error) {
 	offset := (input.PageNumber - 1) * input.PageSize
 
 	users, total, err := f.UserRepository.Find(offset, input.PageSize, input.Id)
 	if err != nil {
-		return dtos.FindOutput{}, err
+		return dtos.FindOutput[dtos.UserOutput]{}, err
 	}
 
 	var output []dtos.UserOutput
@@ -29,11 +29,10 @@ func (f *FindUserUseCase) Execute(input dtos.FindInput) (dtos.FindOutput, error)
 			ID:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,
-			Role:  user.Role,
 		})
 	}
 
-	return dtos.FindOutput{
+	return dtos.FindOutput[dtos.UserOutput]{
 		Items: output,
 		Meta: dtos.MetaFindOutput{
 			Paginate: dtos.PaginateOutput{

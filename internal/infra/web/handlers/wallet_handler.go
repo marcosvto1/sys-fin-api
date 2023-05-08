@@ -15,15 +15,30 @@ import (
 
 type WalletController struct {
 	CreateWalletUseCase usecase.ICreateWallet
+	FindWalletsUsecase  usecase.IFindWallets
 }
 
-func NewWalletController(walletUseCase usecase.ICreateWallet) *WalletController {
+func NewWalletController(walletUseCase usecase.ICreateWallet, findWalletsUseCase usecase.IFindWallets) *WalletController {
 	return &WalletController{
 		CreateWalletUseCase: walletUseCase,
+		FindWalletsUsecase:  findWalletsUseCase,
 	}
 }
 
-func (this *WalletController) CreateWalletHandler(w http.ResponseWriter, r *http.Request) {
+func (controller *WalletController) FindWalletsHandler(w http.ResponseWriter, r *http.Request) {
+	output, err := controller.FindWalletsUsecase.Execute()
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusBadGateway)
+		render.JSON(w, r, errorable.HttpResponse(http.StatusBadGateway, []error{err}))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	render.JSON(w, r, output)
+}
+
+func (controller *WalletController) CreateWalletHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -46,7 +61,7 @@ func (this *WalletController) CreateWalletHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	output, err := this.CreateWalletUseCase.Execute(input)
+	output, err := controller.CreateWalletUseCase.Execute(input)
 	log.Println(err)
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)

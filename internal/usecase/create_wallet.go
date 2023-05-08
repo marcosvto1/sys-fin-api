@@ -23,23 +23,23 @@ func NewCreateWalletUseCase(walletRepository database.IWalletRepository, userRep
 	}
 }
 
-func (uc *CreateWalletUseCase) Execute(input dtos.CreateWalletInput) (dtos.CreateWalletOutput, error) {
+func (uc *CreateWalletUseCase) Execute(input dtos.CreateWalletInput) (dtos.WalletOutput, error) {
 
 	_, err := uc.UserRepository.FindById(input.UserId)
 	if err != nil {
 		log.Error(err)
-		return dtos.CreateWalletOutput{}, errors.New(errorable.NOT_FOUND_REGISTER)
+		return dtos.WalletOutput{}, errors.New(errorable.NOT_FOUND_REGISTER)
 	}
 
 	wallet := entity.NewWallet(-1, input.Name, input.InitialAmount, input.UserId)
 	err = uc.WalletRepository.Create(wallet)
 	if err != nil {
 		log.Error(err)
-		return dtos.CreateWalletOutput{}, errors.New(errorable.FAILED_TO_CREATE_WALLET)
+		return dtos.WalletOutput{}, errors.New(errorable.FAILED_TO_CREATE_WALLET)
 	}
 
-	return dtos.CreateWalletOutput{
-		Id:     wallet.ID,
+	return dtos.WalletOutput{
+		ID:     wallet.ID,
 		Name:   wallet.Name,
 		UserId: wallet.UserId,
 		Amount: wallet.Amount,

@@ -61,11 +61,20 @@ func main() {
 
 	walletRepository := database.NewWalletRepository(db)
 	createWalletUC := usecase.NewCreateWalletUseCase(walletRepository, userRepository)
-	walletController := handlers.NewWalletController(createWalletUC)
+	findWalletsUC := usecase.NewFindWalletsUseCase(walletRepository)
+	walletController := handlers.NewWalletController(createWalletUC, findWalletsUC)
 
 	categoryRepository := database.NewCategoryRepository(db)
 	createCategoryUC := usecase.NewCreateCategoryUseCase(categoryRepository)
-	categoryController := handlers.NewCategoryController(createCategoryUC)
+	findCategoryUC := usecase.NewFindCategoriesUseCase(categoryRepository)
+	categoryController := handlers.NewCategoryController(createCategoryUC, findCategoryUC)
+
+	transactionRepository := database.NewTransactionRepository(db)
+	createTransactionUC := usecase.NewCreateTransactionUseCase(transactionRepository)
+	findTransactionUC := usecase.NewFindTransactionUseCase(transactionRepository)
+	findOneTransactionUC := usecase.NewFindOneTransactionUseCase(transactionRepository)
+	deleteTransactinoUC := usecase.NewDeleteTransactionUsecase(transactionRepository)
+	transactionController := handlers.NewTransactionController(createTransactionUC, findTransactionUC, findOneTransactionUC, deleteTransactinoUC)
 
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -75,8 +84,8 @@ func main() {
 	})
 
 	router.Route("/api/v1", func(r chi.Router) {
-		r.Use(jwtauth.Verifier(tokenAuth))
-		r.Use(jwtauth.Authenticator)
+		// r.Use(jwtauth.Verifier(tokenAuth))
+		//r.Use(jwtauth.Authenticator)
 
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/", userController.CreateUserHandler)
@@ -85,10 +94,19 @@ func main() {
 
 		r.Route("/wallets", func(r chi.Router) {
 			r.Post("/", walletController.CreateWalletHandler)
+			r.Get("/", walletController.FindWalletsHandler)
 		})
 
 		r.Route("/categories", func(r chi.Router) {
 			r.Post("/", categoryController.CreateCategoryHandler)
+			r.Get("/", categoryController.FindCategoriesHandler)
+		})
+
+		r.Route("/transactions", func(r chi.Router) {
+			r.Get("/", transactionController.FindTransactionHandler)
+			r.Get("/{id}", transactionController.FindOneTransactionHandler)
+			r.Post("/", transactionController.CreateTransactionHandler)
+			r.Delete("/{id}", transactionController.DeleteTransactionHandler)
 		})
 	})
 

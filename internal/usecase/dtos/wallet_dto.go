@@ -6,8 +6,8 @@ type CreateWalletInput struct {
 	InitialAmount float64 `json:"initial_amount"`
 }
 
-type CreateWalletOutput struct {
-	Id     int     `json:"id"`
+type WalletOutput struct {
+	ID     int     `json:"id"`
 	Name   string  `json:"name"`
 	UserId int     `json:"user_id"`
 	Amount float64 `json:"amount"`
