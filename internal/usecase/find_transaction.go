@@ -45,6 +45,7 @@ func (uc *FindTransactionUseCase) Execute(input dtos.FindTransactionInput) (dtos
 			WalletId:        transaction.WalletId,
 			WalletName:      transaction.Wallet.Name,
 			TransactionType: transaction.TransactionType,
+			Paid:            transaction.Paid,
 			TransactionAt:   transaction.TransactionAt.Format("2006-01-02"),
 			CreatedAt:       transaction.CreatedAt.Format("2006-01-02"),
 			UpdatedAt:       updatedAt,

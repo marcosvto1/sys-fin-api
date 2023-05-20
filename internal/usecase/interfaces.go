@@ -42,6 +42,10 @@ type IFindOneTransaction interface {
 	Execute(id int) (dtos.FindOutput[dtos.TransactionOutput], error)
 }
 
+type IUpdateTransaction interface {
+	Execute(id int, input dtos.UpdateTransactionInput) error
+}
+
 type IDeleteTransaction interface {
 	Execute(id int) error
 }

@@ -74,7 +74,14 @@ func main() {
 	findTransactionUC := usecase.NewFindTransactionUseCase(transactionRepository)
 	findOneTransactionUC := usecase.NewFindOneTransactionUseCase(transactionRepository)
 	deleteTransactinoUC := usecase.NewDeleteTransactionUsecase(transactionRepository)
-	transactionController := handlers.NewTransactionController(createTransactionUC, findTransactionUC, findOneTransactionUC, deleteTransactinoUC)
+	updateTransactinoUC := usecase.NewUpdateTransactoinUseCase(transactionRepository)
+	transactionController := handlers.NewTransactionController(
+		createTransactionUC,
+		findTransactionUC,
+		findOneTransactionUC,
+		deleteTransactinoUC,
+		updateTransactinoUC,
+	)
 
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -106,6 +113,7 @@ func main() {
 			r.Get("/", transactionController.FindTransactionHandler)
 			r.Get("/{id}", transactionController.FindOneTransactionHandler)
 			r.Post("/", transactionController.CreateTransactionHandler)
+			r.Put("/{id}", transactionController.UpdateTransactionHandler)
 			r.Delete("/{id}", transactionController.DeleteTransactionHandler)
 		})
 	})

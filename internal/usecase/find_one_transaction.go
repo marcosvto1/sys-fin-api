@@ -41,6 +41,7 @@ func (uc *FindOneTransactionUseCase) Execute(id int) (dtos.FindOutput[dtos.Trans
 		WalletId:        transaction.Wallet.ID,
 		WalletName:      transaction.Wallet.Name,
 		TransactionType: transaction.TransactionType,
+		Paid:            transaction.Paid,
 		TransactionAt:   transaction.TransactionAt.Format("2006-01-02"),
 		CreatedAt:       transaction.CreatedAt.Format("2006-01-02"),
 		UpdatedAt:       updatedAt,

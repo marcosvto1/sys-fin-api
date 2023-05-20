@@ -22,6 +22,7 @@ type ICategoryRepository interface {
 type ITransactionRepository interface {
 	Create(transaction *entity.Transaction) error
 	Find(offset, pageNumber int, filter FindTransactionOptions) ([]entity.Transaction, int, error)
+	Update(transaction entity.Transaction) error
 	DeleteById(id int) error
 	FindById(id int) (entity.Transaction, error)
 }

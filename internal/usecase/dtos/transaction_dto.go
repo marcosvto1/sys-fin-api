@@ -7,7 +7,10 @@ type CreateTransactionInput struct {
 	WalletId        int     `json:"wallet_id"`
 	TransactionAt   string  `json:"transaction_at"`
 	Amount          float64 `json:"amount"`
+	Paid            bool    `json:"paid"`
 }
+
+type UpdateTransactionInput = CreateTransactionInput
 
 type TransactionOutput struct {
 	ID              int     `json:"id"`
@@ -19,6 +22,7 @@ type TransactionOutput struct {
 	WalletName      string  `json:"wallet_name"`
 	Amount          float64 `json:"amount"`
 	TransactionAt   string  `json:"transaction_at"`
+	Paid            bool    `json:"paid"`
 	CreatedAt       string  `json:"created_at"`
 	UpdatedAt       string  `json:"updated_at"`
 }
@@ -31,4 +35,5 @@ type FindTransactionInput struct {
 	Year       string `json:"year"`
 	CategoryId int    `json:"category_id"`
 	WalletId   int    `json:"wallet_id"`
+	Paid       bool   `json:"paid"`
 }

@@ -20,6 +20,7 @@ type TransactionController struct {
 	FindTransactionUseCase   usecase.IFindTransaction
 	FindOneTrasactionUseCase usecase.IFindOneTransaction
 	DeleteTransactionUseCase usecase.IDeleteTransaction
+	UpdateTransactionUseCase usecase.IUpdateTransaction
 }
 
 func NewTransactionController(
@@ -27,12 +28,14 @@ func NewTransactionController(
 	findTransactionUC usecase.IFindTransaction,
 	findOneTransactionUC usecase.IFindOneTransaction,
 	deleteTransactionUC usecase.IDeleteTransaction,
+	updateTransactionUC usecase.IUpdateTransaction,
 ) *TransactionController {
 	return &TransactionController{
 		CreateTransactionUseCase: createTransactionUC,
 		FindTransactionUseCase:   findTransactionUC,
 		FindOneTrasactionUseCase: findOneTransactionUC,
 		DeleteTransactionUseCase: deleteTransactionUC,
+		UpdateTransactionUseCase: updateTransactionUC,
 	}
 }
 
@@ -194,4 +197,49 @@ func (controller *TransactionController) DeleteTransactionHandler(w http.Respons
 		render.JSON(w, r, errorable.HttpResponse(http.StatusBadGateway, []error{err}))
 		return
 	}
+}
+
+func (controller *TransactionController) UpdateTransactionHandler(w http.ResponseWriter, r *http.Request) {
+	idString := chi.URLParam(r, "id")
+	if idString == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, errorable.HttpResponse(http.StatusBadRequest, []error{errors.New("path params :id does not founded")}))
+		return
+	}
+
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, errorable.HttpResponse(http.StatusBadRequest, []error{errors.New("invalid param :id")}))
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, errorable.HttpResponse(http.StatusBadRequest, []error{err}))
+		return
+	}
+
+	defer r.Body.Close()
+
+	input := dtos.UpdateTransactionInput{}
+	err = json.Unmarshal(body, &input)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, errorable.HttpResponse(http.StatusBadRequest, []error{err}))
+		return
+	}
+
+	err = controller.UpdateTransactionUseCase.Execute(id, input)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, errorable.HttpResponse(http.StatusInternalServerError, []error{err}))
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

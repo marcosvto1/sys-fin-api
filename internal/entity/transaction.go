@@ -14,6 +14,7 @@ type Transaction struct {
 	Wallet          Wallet    `json:"wallet"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
+	Paid            bool      `json:"paid"`
 }
 
 func NewTransaction(amount float64, transactionType, description string, transactionAt time.Time, categoryId, walletId int) *Transaction {
@@ -26,5 +27,6 @@ func NewTransaction(amount float64, transactionType, description string, transac
 		TransactionAt:   transactionAt,
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Time{},
+		Paid:            false,
 	}
 }

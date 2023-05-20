@@ -42,6 +42,7 @@ func (usecase *CreateTransactionUseCase) Execute(input dtos.CreateTransactionInp
 		ID:              transaction.ID,
 		Description:     transaction.Description,
 		TransactionType: transaction.TransactionType,
+		Paid:            transaction.Paid,
 		TransactionAt:   transaction.TransactionAt.Format("2006-01-02"),
 		Amount:          transaction.Amount,
 		CategoryId:      transaction.CategoryId,

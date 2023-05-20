@@ -27,10 +27,10 @@ func NewTransactionRepository(db *sql.DB) *TransactionRepository {
 func (r *TransactionRepository) Create(transaction *entity.Transaction) error {
 	row := r.DB.QueryRow(`
 	INSERT INTO 
-		transactions (transaction_type, amount, category_id, wallet_id, transaction_at, created_at, updated_at, description) 
+		transactions (transaction_type, amount, category_id, wallet_id, transaction_at, created_at, updated_at, description, paid) 
 	VALUES
 		($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
-	`, transaction.TransactionType, transaction.Amount, transaction.CategoryId, transaction.WalletId, transaction.TransactionAt, transaction.CreatedAt, transaction.UpdatedAt, transaction.Description)
+	`, transaction.TransactionType, transaction.Amount, transaction.CategoryId, transaction.WalletId, transaction.TransactionAt, transaction.CreatedAt, transaction.UpdatedAt, transaction.Description, transaction.Paid)
 
 	err := row.Scan(&transaction.ID)
 	if err != nil {
@@ -47,7 +47,7 @@ func (r *TransactionRepository) Find(offset, pageSize int, filter FindTransactio
 	count := 0
 
 	sql := `
-	SELECT t.id, t.description, t.transaction_type, t.amount, t.transaction_at, c.id, c.name, w.id, w.name
+	SELECT t.id, t.description, t.transaction_type, t.amount, t.transaction_at, t.paid, c.id, c.name, w.id, w.name
 	FROM transactions t
 	JOIN wallets w ON w.id = wallet_id
 	JOIN categories c ON c.id = category_id 
@@ -114,6 +114,7 @@ func (r *TransactionRepository) Find(offset, pageSize int, filter FindTransactio
 			&transaction.TransactionType,
 			&transaction.Amount,
 			&transaction.TransactionAt,
+			&transaction.Paid,
 			&transaction.Category.ID,
 			&transaction.Category.Name,
 			&transaction.Wallet.ID,
@@ -147,7 +148,7 @@ func (repo *TransactionRepository) FindById(id int) (entity.Transaction, error) 
 	var transaction entity.Transaction
 
 	sql := `
-	SELECT t.id, t.description, t.transaction_type, t.amount, t.transaction_at, c.id, c.name, w.id, w.name
+	SELECT t.id, t.description, t.transaction_type, t.amount, t.transaction_at, t.paid , c.id, c.name, w.id, w.name
 	FROM transactions t
 	JOIN wallets w ON w.id = t.wallet_id
 	JOIN categories c ON c.id = t.category_id  WHERE t.id = $1
@@ -163,6 +164,7 @@ func (repo *TransactionRepository) FindById(id int) (entity.Transaction, error) 
 		&transaction.TransactionType,
 		&transaction.Amount,
 		&transaction.TransactionAt,
+		&transaction.Paid,
 		&transaction.Category.ID,
 		&transaction.Category.Name,
 		&transaction.Wallet.ID,
@@ -173,4 +175,36 @@ func (repo *TransactionRepository) FindById(id int) (entity.Transaction, error) 
 	}
 
 	return transaction, nil
+}
+
+func (repo *TransactionRepository) Update(transaction entity.Transaction) error {
+	sql := `
+	UPDATE transactions 
+	SET description=$1, transaction_type=$2, amount=$3, category_id=$4, wallet_id=$5, transaction_at=$6, paid=$7
+	WHERE id = $8
+	`
+	stmt, err := repo.DB.Prepare(sql)
+	if err != nil {
+		return nil
+	}
+
+	res, err := stmt.Exec(
+		transaction.Description,
+		transaction.TransactionType,
+		transaction.Amount,
+		transaction.CategoryId,
+		transaction.WalletId,
+		transaction.TransactionAt,
+		transaction.Paid,
+		transaction.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	if affected, err := res.RowsAffected(); affected != 1 || err != nil {
+		return err
+	}
+
+	return nil
 }

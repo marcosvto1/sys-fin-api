@@ -9,6 +9,9 @@ const (
 	FAILED_TO_CREATE_WALLET      = "failed_to_create_wallet"
 	FAILED_TO_CREATE_TRANSACTION = "failed_to_create_transaction"
 	FAILED_TO_CREATE_CATEGORY    = "failed_to_create_category"
+	FAILED_TO_UPDATE_WALLET      = "failed_to_update_wallet"
+	FAILED_TO_UPDATE_TRANSACTION = "failed_to_update_transaction"
+	FAILED_TO_UPDATE_CATEGORY    = "failed_to_update_category"
 )
 
 type CtxError struct {
