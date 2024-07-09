@@ -1,9 +1,9 @@
 package usecase
 
 import (
-	"gitlab.com/marcosvto/sys-adv-api/internal/entity"
-	"gitlab.com/marcosvto/sys-adv-api/internal/infra/database"
-	"gitlab.com/marcosvto/sys-adv-api/internal/usecase/dtos"
+	"gitlab.com/marcosvto/sys-fin-api/internal/entity"
+	"gitlab.com/marcosvto/sys-fin-api/internal/infra/database"
+	"gitlab.com/marcosvto/sys-fin-api/internal/usecase/dtos"
 )
 
 type CreateCategoryUseCase struct {

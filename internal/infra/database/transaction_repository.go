@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"gitlab.com/marcosvto/sys-adv-api/internal/entity"
+	"gitlab.com/marcosvto/sys-fin-api/internal/entity"
 )
 
 type FindTransactionOptions struct {
@@ -25,12 +25,25 @@ func NewTransactionRepository(db *sql.DB) *TransactionRepository {
 }
 
 func (r *TransactionRepository) Create(transaction *entity.Transaction) error {
-	row := r.DB.QueryRow(`
-	INSERT INTO 
-		transactions (transaction_type, amount, category_id, wallet_id, transaction_at, created_at, updated_at, description, paid) 
+	query := `
+	INSERT INTO
+		transactions (transaction_type, amount, category_id, wallet_id, transaction_at, created_at, updated_at, description, short_description, paid)
 	VALUES
-		($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
-	`, transaction.TransactionType, transaction.Amount, transaction.CategoryId, transaction.WalletId, transaction.TransactionAt, transaction.CreatedAt, transaction.UpdatedAt, transaction.Description, transaction.Paid)
+		($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id
+	`
+	row := r.DB.QueryRow(
+		query,
+		transaction.TransactionType,
+		transaction.Amount,
+		transaction.CategoryId,
+		transaction.WalletId,
+		transaction.TransactionAt,
+		transaction.CreatedAt,
+		transaction.UpdatedAt,
+		transaction.Description,
+		transaction.ShortDescription,
+		transaction.Paid,
+	)
 
 	err := row.Scan(&transaction.ID)
 	if err != nil {
@@ -50,7 +63,7 @@ func (r *TransactionRepository) Find(offset, pageSize int, filter FindTransactio
 	SELECT t.id, t.description, t.transaction_type, t.amount, t.transaction_at, t.paid, c.id, c.name, w.id, w.name
 	FROM transactions t
 	JOIN wallets w ON w.id = wallet_id
-	JOIN categories c ON c.id = category_id 
+	JOIN categories c ON c.id = category_id
 	`
 
 	values := []interface{}{
@@ -179,7 +192,7 @@ func (repo *TransactionRepository) FindById(id int) (entity.Transaction, error) 
 
 func (repo *TransactionRepository) Update(transaction entity.Transaction) error {
 	sql := `
-	UPDATE transactions 
+	UPDATE transactions
 	SET description=$1, transaction_type=$2, amount=$3, category_id=$4, wallet_id=$5, transaction_at=$6, paid=$7
 	WHERE id = $8
 	`
@@ -207,4 +220,82 @@ func (repo *TransactionRepository) Update(transaction entity.Transaction) error 
 	}
 
 	return nil
+}
+
+// CHARTS
+
+func (repo *TransactionRepository) GetChartTransactionByCategory(month, year string) ([]map[string]any, error) {
+
+	sql := `
+	SELECT SUM(amount) as amount, c.name as category_name
+	FROM transactions t
+	JOIN categories c ON c.id = category_id
+	WHERE EXTRACT(MONTH FROM t.transaction_at) = $1 AND EXTRACT(YEAR FROM t.transaction_at) = $2
+	GROUP BY c.name
+	`
+
+	stmt, err := repo.DB.Prepare(sql)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query(month, year)
+	if err != nil {
+		return nil, err
+	}
+
+	var chart []map[string]any
+	for rows.Next() {
+		var category string
+		var amount float64
+		err = rows.Scan(&amount, &category)
+		if err != nil {
+			return nil, err
+		}
+		chart = append(chart, map[string]any{
+			"amount":        amount,
+			"category_name": category,
+		})
+	}
+
+	return chart, nil
+}
+
+func (repo *TransactionRepository) GetChartTransactionByType(year string) ([]map[string]any, error) {
+
+	sql := `
+	SELECT sum(t.amount) as Total, t.transaction_type, EXTRACT(MONTH FROM t.transaction_at) as mon
+	FROM transactions t
+	JOIN categories c ON c.id = t.category_id
+	WHERE EXTRACT(MONTH FROM t.transaction_at) >= 01 AND EXTRACT(MONTH FROM t.transaction_at) <= 12 AND EXTRACT(YEAR FROM t.transaction_at) = $1
+	GROUP BY t.transaction_type, mon
+	`
+
+	stmt, err := repo.DB.Prepare(sql)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query(year)
+	if err != nil {
+		return nil, err
+	}
+
+	var chart []map[string]any
+	for rows.Next() {
+		var month string
+		var transactionType string
+		var amount float64
+		err = rows.Scan(&amount, &transactionType, &month)
+		if err != nil {
+			return nil, err
+		}
+		chart = append(chart, map[string]any{
+			"amount":           amount,
+			"transaction_type": transactionType,
+			"month":            month,
+		})
+	}
+
+	return chart, nil
 }

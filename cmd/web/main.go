@@ -11,9 +11,9 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 	"github.com/joho/godotenv"
-	"gitlab.com/marcosvto/sys-adv-api/internal/infra/database"
-	"gitlab.com/marcosvto/sys-adv-api/internal/infra/web/handlers"
-	"gitlab.com/marcosvto/sys-adv-api/internal/usecase"
+	"gitlab.com/marcosvto/sys-fin-api/internal/infra/database"
+	"gitlab.com/marcosvto/sys-fin-api/internal/infra/web/handlers"
+	"gitlab.com/marcosvto/sys-fin-api/internal/usecase"
 
 	"github.com/go-chi/jwtauth"
 
@@ -28,13 +28,21 @@ func main() {
 	path, _ := os.Getwd()
 	err := godotenv.Load(fmt.Sprintf("%s/.env", path))
 	if err != nil {
-		log.Fatalf("Error loading environment variables file")
+		log.Warn("Error loading environment variables file")
 	}
+
+	fmt.Println(os.Getenv("DATABASE_URL"))
 
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	defer db.Close()
 
 	router := chi.NewRouter()
@@ -46,12 +54,12 @@ func main() {
 		AllowedOrigins: []string{"https://*", "http://*"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		MaxAge:         300,
+		MaxAge:         30000,
 	}))
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 
 	tokenAuth := jwtauth.New("HS256", []byte("any_secret"), nil)
-	tokenExpiration := 300
+	tokenExpiration := 30000
 	router.Use(middleware.WithValue("jwt", tokenAuth))
 	userRepository := database.NewUserRepository(db)
 	createUserUC := usecase.NewCreateUser(userRepository)
@@ -59,15 +67,15 @@ func main() {
 	loginUC := usecase.NewLoginUseCase(userRepository)
 	userController := handlers.NewUserController(createUserUC, findUserUC, loginUC, tokenExpiration)
 
-	walletRepository := database.NewWalletRepository(db)
-	createWalletUC := usecase.NewCreateWalletUseCase(walletRepository, userRepository)
-	findWalletsUC := usecase.NewFindWalletsUseCase(walletRepository)
-	walletController := handlers.NewWalletController(createWalletUC, findWalletsUC)
-
 	categoryRepository := database.NewCategoryRepository(db)
 	createCategoryUC := usecase.NewCreateCategoryUseCase(categoryRepository)
 	findCategoryUC := usecase.NewFindCategoriesUseCase(categoryRepository)
 	categoryController := handlers.NewCategoryController(createCategoryUC, findCategoryUC)
+
+	walletRepository := database.NewWalletRepository(db)
+	createWalletUC := usecase.NewCreateWalletUseCase(walletRepository, userRepository)
+	findWalletsUC := usecase.NewFindWalletsUseCase(walletRepository)
+	walletController := handlers.NewWalletController(createWalletUC, findWalletsUC)
 
 	transactionRepository := database.NewTransactionRepository(db)
 	createTransactionUC := usecase.NewCreateTransactionUseCase(transactionRepository)
@@ -83,6 +91,10 @@ func main() {
 		updateTransactinoUC,
 	)
 
+	getChartTransactionByCategoryUC := usecase.NewChartTransactionByCategoryUseCase(transactionRepository)
+	getChartTransactionByTypeUC := usecase.NewChartTransactionByTypeUseCase(transactionRepository)
+	dashboardController := handlers.NewDashboardController(getChartTransactionByCategoryUC, getChartTransactionByTypeUC)
+
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
@@ -91,11 +103,11 @@ func main() {
 	})
 
 	router.Route("/api/v1", func(r chi.Router) {
-		// r.Use(jwtauth.Verifier(tokenAuth))
-		//r.Use(jwtauth.Authenticator)
+		r.Use(jwtauth.Verifier(tokenAuth))
+		r.Use(jwtauth.Authenticator)
+		// ro
 
 		r.Route("/users", func(r chi.Router) {
-			r.Post("/", userController.CreateUserHandler)
 			r.Get("/", userController.FindUserHandler)
 		})
 
@@ -116,11 +128,17 @@ func main() {
 			r.Put("/{id}", transactionController.UpdateTransactionHandler)
 			r.Delete("/{id}", transactionController.DeleteTransactionHandler)
 		})
+
+		r.Route("/dashboard", func(r chi.Router) {
+			r.Get("/by-category", dashboardController.GetChartTransactionByCategoryHandler)
+			r.Get("/by-type", dashboardController.GetChartTransactionByTypeHandler)
+		})
 	})
 
 	router.Post("/auth/access_token", userController.LoginHandler)
+	router.Post("/users", userController.CreateUserHandler)
 
-	err = http.ListenAndServe(":8000", router)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router)
 	if err != nil {
 		log.Fatal(err)
 	}

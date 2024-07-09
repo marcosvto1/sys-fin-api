@@ -1,6 +1,6 @@
 package database
 
-import "gitlab.com/marcosvto/sys-adv-api/internal/entity"
+import "gitlab.com/marcosvto/sys-fin-api/internal/entity"
 
 type IUserRepository interface {
 	Create(user *entity.User) error
@@ -25,4 +25,6 @@ type ITransactionRepository interface {
 	Update(transaction entity.Transaction) error
 	DeleteById(id int) error
 	FindById(id int) (entity.Transaction, error)
+	GetChartTransactionByCategory(month, year string) ([]map[string]any, error)
+	GetChartTransactionByType(year string) ([]map[string]any, error)
 }

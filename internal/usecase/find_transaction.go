@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"gitlab.com/marcosvto/sys-adv-api/internal/infra/database"
-	"gitlab.com/marcosvto/sys-adv-api/internal/usecase/dtos"
+	"gitlab.com/marcosvto/sys-fin-api/internal/infra/database"
+	"gitlab.com/marcosvto/sys-fin-api/internal/usecase/dtos"
 )
 
 type FindTransactionUseCase struct {
@@ -42,7 +42,7 @@ func (uc *FindTransactionUseCase) Execute(input dtos.FindTransactionInput) (dtos
 			Amount:          transaction.Amount,
 			CategoryId:      transaction.Category.ID,
 			CategoryName:    transaction.Category.Name,
-			WalletId:        transaction.WalletId,
+			WalletId:        transaction.Wallet.ID,
 			WalletName:      transaction.Wallet.Name,
 			TransactionType: transaction.TransactionType,
 			Paid:            transaction.Paid,

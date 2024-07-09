@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"gitlab.com/marcosvto/sys-adv-api/internal/infra/database"
-	"gitlab.com/marcosvto/sys-adv-api/internal/usecase/dtos"
-	"gitlab.com/marcosvto/sys-adv-api/pkg/errorable"
+	"gitlab.com/marcosvto/sys-fin-api/internal/infra/database"
+	"gitlab.com/marcosvto/sys-fin-api/internal/usecase/dtos"
+	"gitlab.com/marcosvto/sys-fin-api/pkg/errorable"
 
 	log "github.com/sirupsen/logrus"
 )

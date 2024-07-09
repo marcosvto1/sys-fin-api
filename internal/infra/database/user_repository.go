@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"gitlab.com/marcosvto/sys-adv-api/internal/entity"
+	"gitlab.com/marcosvto/sys-fin-api/internal/entity"
 )
 
 type UserRepository struct {

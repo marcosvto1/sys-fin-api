@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 
-	"gitlab.com/marcosvto/sys-adv-api/internal/entity"
+	"gitlab.com/marcosvto/sys-fin-api/internal/entity"
 )
 
 type WalletRepository struct {

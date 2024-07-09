@@ -8,9 +8,9 @@ import (
 
 	"github.com/go-chi/render"
 	log "github.com/sirupsen/logrus"
-	"gitlab.com/marcosvto/sys-adv-api/internal/usecase"
-	"gitlab.com/marcosvto/sys-adv-api/internal/usecase/dtos"
-	"gitlab.com/marcosvto/sys-adv-api/pkg/errorable"
+	"gitlab.com/marcosvto/sys-fin-api/internal/usecase"
+	"gitlab.com/marcosvto/sys-fin-api/internal/usecase/dtos"
+	"gitlab.com/marcosvto/sys-fin-api/pkg/errorable"
 )
 
 type CategoryController struct {

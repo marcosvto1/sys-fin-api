@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"github.com/go-chi/jwtauth"
-	"gitlab.com/marcosvto/sys-adv-api/internal/usecase/dtos"
-	"gitlab.com/marcosvto/sys-adv-api/pkg/errorable"
+	"gitlab.com/marcosvto/sys-fin-api/internal/usecase/dtos"
+	"gitlab.com/marcosvto/sys-fin-api/pkg/errorable"
 )
 
 type ICreateUser interface {
@@ -52,4 +52,12 @@ type IDeleteTransaction interface {
 
 type IFindCategories interface {
 	Execute() ([]dtos.CategoryOutput, error)
+}
+
+type IChartTransactionByCategory interface {
+	Execute(input dtos.GetChartTransactionByCategoryInput) ([]map[string]any, error)
+}
+
+type IChartTransactionByType interface {
+	Execute(input dtos.GetChartTransactionByTypeInput) ([]map[string]any, error)
 }

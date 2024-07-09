@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"gitlab.com/marcosvto/sys-adv-api/internal/infra/database"
+	"gitlab.com/marcosvto/sys-fin-api/internal/infra/database"
 )
 
 type DeleteTransactionUseCase struct {
