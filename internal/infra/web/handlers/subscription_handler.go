@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"gitlab.com/marcosvto/sys-fin-api/internal/usecase"
 	"gitlab.com/marcosvto/sys-fin-api/internal/usecase/dtos"
 )
@@ -62,7 +63,7 @@ func (h *SubscriptionHandler) CreateHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *SubscriptionHandler) FindByIdHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := chi.URLParam(r, "id")
 
 	intId, err := strconv.Atoi(id)
 	if err != nil {
@@ -82,7 +83,7 @@ func (h *SubscriptionHandler) FindByIdHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (h *SubscriptionHandler) DeleteByIdHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := chi.URLParam(r, "id")
 
 	intId, err := strconv.Atoi(id)
 	if err != nil {
@@ -90,7 +91,7 @@ func (h *SubscriptionHandler) DeleteByIdHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	subscription, err := h.FindSubscriptionUC.FindById(intId)
+	_, err = h.FindSubscriptionUC.FindById(intId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -103,12 +104,11 @@ func (h *SubscriptionHandler) DeleteByIdHandler(w http.ResponseWriter, r *http.R
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(subscription)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *SubscriptionHandler) UpdateByIdHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := chi.URLParam(r, "id")
 
 	intId, err := strconv.Atoi(id)
 	if err != nil {
