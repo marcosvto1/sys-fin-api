@@ -46,11 +46,11 @@ func (u *ChartTransactionByTypeUseCase) Execute(input dtos.GetChartTransactionBy
 			}
 
 			if res[1]["transaction_type"] == "output" {
-				values.Output = res[0]["amount"].(float64)
+				values.Output = res[1]["amount"].(float64)
 			}
 
 			if res[1]["transaction_type"] == "input" {
-				values.Input = res[0]["amount"].(float64)
+				values.Input = res[1]["amount"].(float64)
 			}
 		} else if len(res) == 1 {
 			if res[0]["transaction_type"] == "output" {
