@@ -95,6 +95,12 @@ func main() {
 	getChartTransactionByTypeUC := usecase.NewChartTransactionByTypeUseCase(transactionRepository)
 	dashboardController := handlers.NewDashboardController(getChartTransactionByCategoryUC, getChartTransactionByTypeUC)
 
+	// SUBSCRIPTION
+	subscriptionRepository := database.NewSubscriptionRepository(db)
+	findSubscriptionUC := usecase.NewFindSubscriptionUseCase(*subscriptionRepository)
+	createSubscriptionUC := usecase.NewCreateSubscriptionUC(*subscriptionRepository)
+	subscriptionHandler := handlers.NewSubscriptionHandler(findSubscriptionUC, createSubscriptionUC)
+
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
@@ -132,6 +138,11 @@ func main() {
 		r.Route("/dashboard", func(r chi.Router) {
 			r.Get("/by-category", dashboardController.GetChartTransactionByCategoryHandler)
 			r.Get("/by-type", dashboardController.GetChartTransactionByTypeHandler)
+		})
+
+		r.Route("/subscriptions", func(r chi.Router) {
+			r.Get("/", subscriptionHandler.FindAll)
+			r.Post("/", subscriptionHandler.CreateHandler)
 		})
 	})
 

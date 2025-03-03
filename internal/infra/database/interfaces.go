@@ -28,3 +28,9 @@ type ITransactionRepository interface {
 	GetChartTransactionByCategory(month, year string) ([]map[string]any, error)
 	GetChartTransactionByType(year string) ([]map[string]any, error)
 }
+
+type ISubscriptionRepository interface {
+	Create(subscription *entity.Subscription) error
+	FindAll() ([]entity.Subscription, error)
+	FindById(id int) (entity.Subscription, error)
+}
