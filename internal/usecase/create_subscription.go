@@ -6,17 +6,17 @@ import (
 	"gitlab.com/marcosvto/sys-fin-api/internal/usecase/dtos"
 )
 
-type CreateSubscriptionUC struct {
+type CreateSubscriptionUsecase struct {
 	SubscriptionRepository database.SubscriptionRepository
 }
 
-func NewCreateSubscriptionUC(subscriptionRepository database.SubscriptionRepository) *CreateSubscriptionUC {
-	return &CreateSubscriptionUC{
+func NewCreateSubscriptionUsecase(subscriptionRepository database.SubscriptionRepository) *CreateSubscriptionUsecase {
+	return &CreateSubscriptionUsecase{
 		SubscriptionRepository: subscriptionRepository,
 	}
 }
 
-func (f *CreateSubscriptionUC) Create(input dtos.CreateSubscriptionInput) (entity.Subscription, error) {
+func (f *CreateSubscriptionUsecase) Create(input dtos.CreateSubscriptionInput) (entity.Subscription, error) {
 	subscription := entity.Subscription{
 		Name:  input.Name,
 		Price: input.Price,

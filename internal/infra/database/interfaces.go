@@ -31,6 +31,8 @@ type ITransactionRepository interface {
 
 type ISubscriptionRepository interface {
 	Create(subscription *entity.Subscription) error
+	Update(subscription *entity.Subscription) error
 	FindAll() ([]entity.Subscription, error)
 	FindById(id int) (entity.Subscription, error)
+	DeleteById(id int) error
 }

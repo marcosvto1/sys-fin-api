@@ -3,25 +3,34 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"gitlab.com/marcosvto/sys-fin-api/internal/usecase"
 	"gitlab.com/marcosvto/sys-fin-api/internal/usecase/dtos"
 )
 
 type SubscriptionHandler struct {
-	FindSubscriptionUC   *usecase.FindSubscriptionUC
-	CreateSubscriptionUC *usecase.CreateSubscriptionUC
+	FindSubscriptionUC   *usecase.FindSubscriptionUsecase
+	CreateSubscriptionUC *usecase.CreateSubscriptionUsecase
+	DeleteSubscriptionUC *usecase.DeleteSubscriptionUseCase
+	UpdateSubscriptionUC *usecase.UpdateSubscriptionUsecase
 }
 
 func NewSubscriptionHandler(
-	findSubscription *usecase.FindSubscriptionUC, createSubscription *usecase.CreateSubscriptionUC) *SubscriptionHandler {
+	findSubscription *usecase.FindSubscriptionUsecase,
+	createSubscription *usecase.CreateSubscriptionUsecase,
+	deleteSubscription *usecase.DeleteSubscriptionUseCase,
+	updateSubscription *usecase.UpdateSubscriptionUsecase,
+) *SubscriptionHandler {
 	return &SubscriptionHandler{
 		FindSubscriptionUC:   findSubscription,
 		CreateSubscriptionUC: createSubscription,
+		DeleteSubscriptionUC: deleteSubscription,
+		UpdateSubscriptionUC: updateSubscription,
 	}
 }
 
-func (h *SubscriptionHandler) FindAll(w http.ResponseWriter, r *http.Request) {
+func (h *SubscriptionHandler) FindAllHandler(w http.ResponseWriter, r *http.Request) {
 	subscriptions, err := h.FindSubscriptionUC.FindAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -50,4 +59,83 @@ func (h *SubscriptionHandler) CreateHandler(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(subscription)
+}
+
+func (h *SubscriptionHandler) FindByIdHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	subscription, err := h.FindSubscriptionUC.FindById(intId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(subscription)
+}
+
+func (h *SubscriptionHandler) DeleteByIdHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	subscription, err := h.FindSubscriptionUC.FindById(intId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = h.DeleteSubscriptionUC.Execute(intId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(subscription)
+}
+
+func (h *SubscriptionHandler) UpdateByIdHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = h.FindSubscriptionUC.FindById(intId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	var input dtos.UpdateSubscriptionInput
+	err = json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	updated, err := h.UpdateSubscriptionUC.Execute(intId, input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(updated)
 }

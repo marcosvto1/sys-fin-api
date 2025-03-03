@@ -98,3 +98,43 @@ func (r *SubscriptionRepository) FindAll() ([]entity.Subscription, error) {
 
 	return subscriptions, nil
 }
+
+func (r *SubscriptionRepository) DeleteById(id int) error {
+	query := `
+	DELETE FROM
+		subscriptions
+	WHERE
+		id = $1
+	`
+
+	_, err := r.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *SubscriptionRepository) Update(subscription *entity.Subscription) (entity.Subscription, error) {
+	query := `
+	UPDATE
+		subscriptions
+	SET
+		name = $1,
+		price = $2
+	WHERE
+		id = $3
+	`
+
+	_, err := r.DB.Exec(query, subscription.Name, subscription.Price, subscription.ID)
+	if err != nil {
+		return entity.Subscription{}, err
+	}
+
+	sub, err := r.FindById(subscription.ID)
+	if err != nil {
+		return entity.Subscription{}, err
+	}
+
+	return sub, nil
+}

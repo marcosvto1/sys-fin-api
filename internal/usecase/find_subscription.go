@@ -1,24 +1,33 @@
 package usecase
 
 import (
+	"errors"
+
 	"gitlab.com/marcosvto/sys-fin-api/internal/entity"
 	"gitlab.com/marcosvto/sys-fin-api/internal/infra/database"
 )
 
-type FindSubscriptionUC struct {
+type FindSubscriptionUsecase struct {
 	SubscriptionRepository database.SubscriptionRepository
 }
 
-func NewFindSubscriptionUseCase(subscriptionRepository database.SubscriptionRepository) *FindSubscriptionUC {
-	return &FindSubscriptionUC{
+func NewFindSubscriptionUsecase(subscriptionRepository database.SubscriptionRepository) *FindSubscriptionUsecase {
+	return &FindSubscriptionUsecase{
 		SubscriptionRepository: subscriptionRepository,
 	}
 }
 
-func (f *FindSubscriptionUC) FindAll() ([]entity.Subscription, error) {
+func (f *FindSubscriptionUsecase) FindAll() ([]entity.Subscription, error) {
 	return f.SubscriptionRepository.FindAll()
 }
 
-func (f *FindSubscriptionUC) FindById(id int) (entity.Subscription, error) {
-	return f.SubscriptionRepository.FindById(id)
+func (f *FindSubscriptionUsecase) FindById(id int) (entity.Subscription, error) {
+	subscription, err := f.SubscriptionRepository.FindById(id)
+	if err != nil {
+		return entity.Subscription{}, errors.New(
+			"subscription not found",
+		)
+	}
+
+	return subscription, nil
 }

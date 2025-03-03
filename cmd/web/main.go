@@ -97,9 +97,18 @@ func main() {
 
 	// SUBSCRIPTION
 	subscriptionRepository := database.NewSubscriptionRepository(db)
-	findSubscriptionUC := usecase.NewFindSubscriptionUseCase(*subscriptionRepository)
-	createSubscriptionUC := usecase.NewCreateSubscriptionUC(*subscriptionRepository)
-	subscriptionHandler := handlers.NewSubscriptionHandler(findSubscriptionUC, createSubscriptionUC)
+	findSubscriptionUC := usecase.NewFindSubscriptionUsecase(*subscriptionRepository)
+	createSubscriptionUC := usecase.NewCreateSubscriptionUsecase(*subscriptionRepository)
+	deleteSubscriptionUC := usecase.NewDeleteSubscriptionUsecase(subscriptionRepository)
+	updateSubscriptionUC := usecase.NewUpdateSubscriptionUsecase(subscriptionRepository)
+
+	subscriptionHandler := handlers.NewSubscriptionHandler(
+		findSubscriptionUC,
+		createSubscriptionUC,
+		deleteSubscriptionUC,
+		updateSubscriptionUC,
+	)
+	// -- END SUBSCRIPTION
 
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -141,8 +150,11 @@ func main() {
 		})
 
 		r.Route("/subscriptions", func(r chi.Router) {
-			r.Get("/", subscriptionHandler.FindAll)
+			r.Get("/", subscriptionHandler.FindAllHandler)
 			r.Post("/", subscriptionHandler.CreateHandler)
+			r.Get("/{id}", subscriptionHandler.FindByIdHandler)
+			r.Delete("/{id}", subscriptionHandler.DeleteByIdHandler)
+			r.Put("/{id}", subscriptionHandler.UpdateByIdHandler)
 		})
 	})
 
