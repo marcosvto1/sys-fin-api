@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id serial NOT NULL PRIMARY KEY,
     email character varying(255) NULL,
     name character varying(255) NULL,

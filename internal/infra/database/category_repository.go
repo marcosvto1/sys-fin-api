@@ -43,3 +43,15 @@ func (cateoryRepo *CategoryRepository) FindAll() ([]entity.Category, error) {
 
 	return categories, nil
 }
+
+func (categoryRepo *CategoryRepository) FindById(id int) (entity.Category, error) {
+	row := categoryRepo.DB.QueryRow("SELECT id, name FROM categories WHERE id = $1", id)
+
+	category := entity.Category{}
+	err := row.Scan(&category.ID, &category.Name)
+	if err != nil {
+		return entity.Category{}, err
+	}
+
+	return category, nil
+}

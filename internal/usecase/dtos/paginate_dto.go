@@ -11,7 +11,7 @@ type MetaFindOutput struct {
 	Paginate PaginateOutput `json:"paginate"`
 }
 
-type FindOutput[V UserOutput | CategoryOutput | TransactionOutput] struct {
+type FindOutput[V UserOutput | CategoryOutput | TransactionOutput | MovieOutput] struct {
 	Items []V            `json:"items"`
 	Meta  MetaFindOutput `json:"meta"`
 }

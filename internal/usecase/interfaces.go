@@ -61,3 +61,27 @@ type IChartTransactionByCategory interface {
 type IChartTransactionByType interface {
 	Execute(input dtos.GetChartTransactionByTypeInput) ([]map[string]any, error)
 }
+
+type ICreateMovie interface {
+	Execute(input dtos.CreateMovieInput) (dtos.MovieOutput, error)
+}
+
+type IUpdateMovie interface {
+	Execute(id int, input dtos.UpdateMovieInput) (dtos.MovieOutput, error)
+}
+
+type IFindMovies interface {
+	Execute(input dtos.FindMovieInput) (dtos.FindOutput[dtos.MovieOutput], error)
+}
+
+type IDeleteMovie interface {
+	Execute(id int) error
+}
+
+type IFindMovieById interface {
+	Execute(id int) (dtos.MovieOutput, error)
+}
+
+type ICreateDebt interface {
+	Execute(input dtos.CreateDebtInput) (*dtos.DebtOutput, error)
+}

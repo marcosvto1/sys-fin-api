@@ -12,6 +12,7 @@ const (
 	FAILED_TO_UPDATE_WALLET      = "failed_to_update_wallet"
 	FAILED_TO_UPDATE_TRANSACTION = "failed_to_update_transaction"
 	FAILED_TO_UPDATE_CATEGORY    = "failed_to_update_category"
+	CATEGORY_MUST_BE_GREATER_THAN_ZERO = "category_must_be_greater_than_zero"
 )
 
 type CtxError struct {
@@ -74,7 +75,9 @@ func getMessageErrorFromContext(context string) string {
 	case FAILED_TO_CREATE_CATEGORY:
 		return "Failed to create category"
 	case FAILED_TO_CREATE_WALLET:
-		return "Failed to create wallet"
+	    return "Failed to create wallet"
+	case CATEGORY_MUST_BE_GREATER_THAN_ZERO:
+		return "Category must be greater than zero"
 	default:
 		return "Not mapped error"
 	}

@@ -110,6 +110,28 @@ func main() {
 	)
 	// -- END SUBSCRIPTION
 
+	// Movies
+	movieRepository := database.NewMovieRepository(db)
+	createMovieUC := usecase.NewCreateMovieUC(movieRepository)
+	findMovieUC := usecase.NewFindMovieUC(movieRepository)
+	deleteMovieUC := usecase.NewDeleteMovieUC(movieRepository)
+	findMovieByIdUC := usecase.NewFindMovieByIdUC(movieRepository)
+	updateMovieUC := usecase.NewUpdateMovieUC(movieRepository)
+	movieHandler := handlers.NewMovieHandler(
+		createMovieUC,
+		findMovieUC,
+		deleteMovieUC,
+		findMovieByIdUC,
+		updateMovieUC)
+	// -- END Movies
+
+
+	// Debt
+	debtRepository := database.NewDebtRepository(db)
+	createDebtUC := usecase.NewCreateDebt(debtRepository, categoryRepository)
+	debtHandler := handlers.NewDebtHandler(createDebtUC)
+	// -- END Debt
+
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
@@ -155,6 +177,18 @@ func main() {
 			r.Get("/{id}", subscriptionHandler.FindByIdHandler)
 			r.Delete("/{id}", subscriptionHandler.DeleteByIdHandler)
 			r.Put("/{id}", subscriptionHandler.UpdateByIdHandler)
+		})
+
+		r.Route("/movies", func(r chi.Router) {
+			r.Post("/", movieHandler.CreateMovieHandler)
+			r.Get("/", movieHandler.FindMovieHandler)
+			r.Delete("/{id}", movieHandler.DeleteMovieHandler)
+			r.Get("/{id}", movieHandler.FindMovieByIdHandler)
+			r.Put("/{id}", movieHandler.UpdateMovieHandler)
+		})
+
+		r.Route("/debts", func(r chi.Router) {
+			r.Post("/", debtHandler.CreateDebt)
 		})
 	})
 

@@ -17,6 +17,7 @@ type IWalletRepository interface {
 type ICategoryRepository interface {
 	Create(category *entity.Category) error
 	FindAll() ([]entity.Category, error)
+	FindById(id int) (entity.Category, error)
 }
 
 type ITransactionRepository interface {
@@ -35,4 +36,22 @@ type ISubscriptionRepository interface {
 	FindAll() ([]entity.Subscription, error)
 	FindById(id int) (entity.Subscription, error)
 	DeleteById(id int) error
+}
+
+type IMovieRepository interface {
+	Create(movie *entity.Movie) (*entity.Movie, error)
+	Find(offset, pageNumber int, filter FindMovieOptions) ([]entity.Movie, int, error)
+	FindAll() ([]entity.Movie, error)
+	FindById(id int) (entity.Movie, error)
+	Update(movie *entity.Movie) error
+	DeleteById(id int) error
+}
+
+
+type IDebtRepository interface {
+	Create(debt *entity.Debt) (*entity.Debt, error)
+	// GetDebtByID(id uint) (*entity.Debt, error)
+	// Update(debt *entity.Debt) error
+	// DeleteById(id uint) error
+	// FindAll() ([]*entity.Debt, error)
 }
